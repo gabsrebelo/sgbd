@@ -1,0 +1,11 @@
+
+#Don't track content of these folders
+.idea/
+
+# Compiled source #
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
