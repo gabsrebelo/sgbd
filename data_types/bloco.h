@@ -8,7 +8,8 @@
 
 class Bloco {
 public:
-    Registro registros[2];
+    Registro registros[2]; // size = 3024
+    char lixo[1072]; // usado para completar os 4k do bloco (4096 - 3024 = 1072)
 };
 
 #endif

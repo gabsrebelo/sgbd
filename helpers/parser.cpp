@@ -4,8 +4,25 @@
 #include <vector>
 #include <sstream>
 #include "parser.h"
+#include "../data_types/registro.h"
 
 #define N_ATRIBUTOS 7
+
+std::string remove_quotes(std::string str){
+    str.erase(str.begin());
+    str.erase(str.end() - 1);
+
+    return str;
+}
+
+void create_registro(std::vector< std::string > tupla){
+    for(auto atrib : tupla){
+        atrib = remove_quotes(atrib);
+    }
+
+    // Registro novo_registro(tupla);
+    // novo_registro.print();
+}
 
 void read_file(){
     std::fstream cursor;
@@ -17,22 +34,22 @@ void read_file(){
 
     std::vector< std::string > tupla;
     std::string linha, atributo, temp;
-
-    int i; 
+    int count_atributos = 0;
 
     if (cursor.is_open()){
-        while(cursor >> temp){
+        while(getline(cursor, linha)){
             tupla.clear();
-
-            getline(cursor, linha);
-            std::cout << "linha: " << linha << std::endl;
+            count_atributos = 0;
 
             std::stringstream s(linha);
 
-            while(getline(s, atributo, ';')){
-                std::cout << "atributo: " << atributo << std::endl;
+            while(count_atributos < N_ATRIBUTOS){
+                getline(s, atributo, ';');
                 tupla.push_back(atributo);
+                count_atributos++;
             }
+
+            create_registro(tupla);
         }
     }
     else {
