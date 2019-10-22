@@ -15,9 +15,15 @@ a.out
 .vscode/settings.json
 files/entrada.csv
 files/hash.bin
+<<<<<<< refs/remotes/origin/master
 files/entrada1.csv
 files/entrada200.csv
 files/teste.txt
 files/entrada_preproc.csv
 entrada_preproc.txt
 files/
+=======
+
+#arquivo csv
+*.csv
+>>>>>>> mexendo com a b+ tree
