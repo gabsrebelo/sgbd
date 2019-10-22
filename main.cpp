@@ -7,9 +7,9 @@
 int main(){
     init_hash_file();
 
-    // read_file();
+    read_file();
 
-    remove_quotes();
+    
     
     return 0;
 }

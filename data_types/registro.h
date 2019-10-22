@@ -21,36 +21,59 @@ public:
         vazio = true;
     }
     
-    // Registro(std::vector< std::string > tupla){
-    //     std::string str;
-        
-    //     vazio = false;
+    Registro(std::vector< std::string > tupla){
 
-    //     id = stoi(tupla.at(0));
+        // for(auto &atrib : tupla){
+        //     std::cout << atrib << std::endl;
+        // }
 
-    //     str = tupla.at(1);
-    //     str.copy(titulo, str.size() + 1);
-    //     titulo[str.size()] = '\0';
+        // // setVazio
+        // vazio = false;
 
-    //     ano = stoi(tupla.at(2));
+        // // setId
+        // std::cout << tupla.at(0) << std::endl;
+        // id = stoi(tupla.at(0));
+
+        // // setTitulo
+        // std::cout << tupla.at(1) << std::endl;
+        // copy_string_to_char(tupla.at(1), titulo);
+
+        // // setAno
+        // std::cout << tupla.at(2) << std::endl;
+        // ano = stoi(tupla.at(2));
+
+        // // setAutores
+        // std::cout << tupla.at(3) << std::endl;
+        // copy_string_to_char(tupla.at(3), autores);
         
-    //     str = tupla.at(3);
-    //     str.copy(autores, str.size() + 1);
-    //     autores[str.size()] = '\0';
+        // // setCitacoes
+        // std::cout << tupla.at(4) << std::endl;
+        // citacoes = stoi(tupla.at(4));
         
-    //     citacoes = stoi(tupla.at(4));
+        // // setAtualizacao
+        // std::cout << tupla.at(5) << std::endl;
+        // copy_string_to_char(tupla.at(5), atualizacao);
         
-    //     str = tupla.at(5);
-    //     str.copy(atualizacao, str.size() + 1);
-    //     atualizacao[str.size()] = '\0';
-        
-    //     str = tupla.at(6);
-    //     str.copy(snippet, str.size() + 1);
-    //     snippet[str.size()] = '\0';
-    // }
+        // // setSnippet
+        // std::cout << tupla.at(6) << std::endl;
+        // copy_string_to_char(tupla.at(6), snippet);
+    }
+
+    void copy_string_to_char(std::string str, char * charArray){
+        str.copy(charArray, str.size() + 1);
+        charArray[str.size()] = '\0';
+    }
 
     void print(){
-        std::cout << vazio << id << titulo << ano << autores << citacoes << atualizacao << snippet << std::endl;
+        std::cout << "[vazio] " << vazio << std::endl << std::endl;
+        std::cout << "[id] " << id << std::endl << std::endl;
+        std::cout << "[titulo] " << titulo << std::endl << std::endl;
+        std::cout << "[ano] " << ano << std::endl << std::endl;
+        std::cout << "[autores] " << autores << std::endl << std::endl;
+        std::cout << "[citacoes] " << citacoes << std::endl << std::endl;
+        std::cout << "[atualizacao] " << atualizacao << std::endl << std::endl;
+        std::cout << "[snippet] " << snippet << std::endl << std::endl;
+        std::cout << "--------------------" << std::endl << std::endl;
     }
 };
 
