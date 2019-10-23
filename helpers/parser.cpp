@@ -43,141 +43,147 @@ void create_registro(std::vector< std::string > tupla){
     // place_on_hash(novo_registro);
 }
 
-bool atributo_null(std::string atributo){
-    return (atributo.find("NULL") != std::string::npos) || (atributo.find(";;") != std::string::npos);
+void teste(std::vector<std::string> &tupla){
+    std::ofstream cursor;
+    cursor.open("files/teste.txt", std::ios::out | std::ios::app);
+
+    int i = 0;
+
+    for(i = 0; i < 6; i++){
+        std::cout << tupla.at(i) << std::endl;
+        cursor << tupla.at(i) << std::endl;
+    }
+
+    std::cout << tupla.at(6) << std::endl;
+    cursor << tupla.at(6) << std::endl;
+
+    cursor.close();
 }
 
-void read_file2(){
-    std::fstream cursor;
-    cursor.open("files/entrada.csv", std::ios::in);
+void preprocess_linha(std::string &linha){
+    std::string null_indicator1 = "NULL"; 
+    std::string null_indicator2 = "\";;\"";
+    
+    int len1 = null_indicator1.length();
+    int len2 = null_indicator2.length();
 
-    std::vector< std::string > tupla;
-    std::string linha, temp, token;
-    int len_delimiter;
-    std::string delimiter = "\";\"";
-    std::string delimiter2 = "\";";
+    std::string replace1 = "\"null\"";
+    std::string replace2 = "\";\"null\";\"";
+
+    int rep_len1 = replace1.length();
+    int rep_len2 = replace2.length();
+
     size_t pos = 0;
 
-    if(cursor.is_open()){
-        while(getline(cursor, linha)){
+    while((pos = linha.find(null_indicator1, pos)) != std::string::npos){
+        linha.replace(pos, len1, replace1);
+        pos += rep_len1;
+    }
 
-            // tokeniza do 1o ao penúltimo atributo, se guiando pelo delimitador ";"
-            while(linha.length()){
-                len_delimiter = 0;
+    pos = 0;
 
-                if((pos = linha.find(delimiter)) != std::string::npos){
-                    len_delimiter = delimiter.length();
-                }
-                else if((pos = linha.find(delimiter2)) != std::string::npos){
-                    len_delimiter = delimiter2.length();
-                }   
+    while((pos = linha.find(null_indicator2, pos)) != std::string::npos){
+        linha.replace(pos, len2, replace2);
+        pos += rep_len2;
+    }
+}
 
-                if(len_delimiter){
-                    token = linha.substr(0, pos);
+void process_content(std::fstream &cursor){
 
-                    if(atributo_null(token)){
-                        tupla.push_back("");
-                    }
-                    else{
-                        tupla.push_back(token);
-                    }
+    std::vector< std::string > tupla;
+    std::string linha, token;
+    std::string delimiter = "\";\"";
+    std::string delimiter2 = "\";";
+    int len_delimiter;
+    size_t pos;
 
-                    linha.erase(0, pos + len_delimiter);
+    pos = 0;
+    token = "";
+
+    while(getline(cursor, linha)){
+
+        preprocess_linha(linha);
+
+        // tokeniza do 1o ao penúltimo atributo, se guiando pelo delimitador ";"
+        while(linha.length()){
+            len_delimiter = 0;
+
+            // se há, na linha, um \";\", então esse é o delimitador
+            if((pos = linha.find(delimiter)) != std::string::npos){
+                len_delimiter = delimiter.length();
+            }
+
+            // se há na verdade um \"; na linha, então esse é o delimitador
+            else if((pos = linha.find(delimiter2)) != std::string::npos){
+                len_delimiter = delimiter2.length();
+            }   
+
+            if(len_delimiter){
+                if(token.length()){
+                    token += linha.substr(0, pos);
                 }
                 else{
-                    break;
+                    token = linha.substr(0, pos);
                 }
-            }
 
-            // adiciona o último
-            token = linha.substr(0, linha.length() - 1);
-            if(atributo_null(token)){
-                tupla.push_back("");
-            }
-            //caso o último não seja nulo e nem termine com \" (há quebra de linha no texto)
-            else if(!atributo_null(token) && token.at(token.length() - 1) != '\"'){
-                std::cout << tupla.at(0) << std::endl;
-                continue;
-            }
-            else{
                 tupla.push_back(token);
+
+                linha.erase(0, pos + len_delimiter);
+                token = "";
             }
 
-            std::string * token_ptr;
-
-            // tira as aspas da primeira entrada da tupla
-            token_ptr = &tupla.at(0);
-            token_ptr->erase(token_ptr->begin()); 
-
-            // tira as aspas da última entrada da tupla (se n for nula)
-            token_ptr = &tupla.at(tupla.size() - 1);
-            if((*token_ptr).length()){
-                token_ptr->erase(token_ptr->end() - 1);
+            // esse caso é quando já se está no último atributo e, portanto, não tem mais
+            // nenhum dos dois delimitadores na linha.
+            else{
+                break;
             }
-
-            for(auto &atrib : tupla){
-                std::cout << atrib << std::endl;
-            }
-
-            if(tupla.size() != 7){
-                std::cout << "TAMANHO \n" << tupla.size() << std::endl;        
-            }
-            
-            tupla.clear();
         }
+
+        // tokeniza o último atributo
+        token = linha.substr(0, linha.length() - 1);
+
+        // quando algum atributo quebra na metáde (contém '\n') e é necessário continuar processando a 
+        // mesma tupla só que com a outra linha, vai pro próximo passo do loop sem limpar a tupla
+        // e nem o token.
+        if(tupla.size() < 6){
+            continue;
+        }
+
+        tupla.push_back(token);
+
+        std::string * token_ptr;
+
+        // tira as aspas da primeira entrada da tupla
+        token_ptr = &tupla.at(0);
+        token_ptr->erase(token_ptr->begin()); 
+
+        // tira as aspas da última entrada da tupla (se n for nula)
+        token_ptr = &tupla.at(tupla.size() - 1);
+        if((*token_ptr).length()){
+            token_ptr->erase(token_ptr->end() - 1);
+        }
+
+        // std::cout << tupla.at(0) << std::endl;
+
+        if(tupla.size() != 7){
+            std::cout << tupla.at(0) << std::endl;
+        }
+
+        // teste(tupla);
+        
+        token = "";
+        tupla.clear();
     }
 }
 
 void read_file(){
     std::fstream cursor;
+    cursor.open("files/entrada.csv", std::ios::in);
 
-    cursor.open("files/entrada.csv", std::ios::in); 
-    // cursor.open("files/entrada10.csv", std::ios::in); 
-    // cursor.open("files/entrada200.csv", std::ios::in); 
-
-    std::vector< std::string > tupla;
-    std::string linha, atributo, temp;
-    int i = 0;
-
-    if (cursor.is_open()){
-        // while(getline(cursor, linha)){
-
-        //     // Inicializa variáveis auxiliares
-        //     i = 0;
-        //     tupla.clear();
-
-        //     // Cria stream pra linha
-        //     std::stringstream s(linha);
-
-        //     // Dá um split na linha pela caractere \"
-        //     while(getline(s, atributo, "\";\"")){
-
-        //         // As strings de índice par são o conteúdo entre os pares de aspas ("..." x "..."), que podem ser um indicador de que o atributo é nulo
-        //         if(i % 2 == 0){
-        //             if(i > 0 && atributo_null(atributo)){
-        //                 tupla.push_back("NULL");
-        //             }
-        //         }
-
-        //         // Só dá push sem verificação nos elementos ímpares do split, que são o que tem propriamente entre as aspas.
-        //         else if(i % 2 == 1)
-        //             tupla.push_back(atributo);
-                
-        //         i++;
-        //     }
-
-        //     // for(auto &atrib : tupla){
-        //     //     std::cout << atrib << std::endl;
-        //     // }
-
-        //     if(tupla.size() != 7){
-        //         std::cout << tupla.at(0) << " - " << tupla.size() << std::endl;
-        //     }
-
-        //     // create_registro(tupla);
-        // }
+    if(cursor.is_open()){
+        process_content(cursor);
     }
-    else {
-        std::cout << "nao abriu" << std::endl;
+    else{
+        std::cout << "Erro ao abrir arquivo." << std::endl;
     }
 }

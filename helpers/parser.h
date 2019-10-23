@@ -8,8 +8,9 @@
 // std::string remove_quotes();
 void check_badformat_erros(std::vector< std::string > &tupla);
 void create_registro(std::vector< std::string > tupla);
-bool atributo_null(std::string atributo);
-void read_file2();
+void teste(std::vector<std::string> &tupla);
+void preprocess_linha(std::string &linha);
+void process_content(std::fstream &cursor);
 void read_file();
 
 #endif

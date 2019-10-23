@@ -7,7 +7,7 @@
 int main(){
     init_hash_file();
 
-    read_file2();
+    read_file();
     
     return 0;
 }
