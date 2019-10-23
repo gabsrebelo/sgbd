@@ -10,36 +10,10 @@
 
 #define N_ATRIBUTOS 7
 
-// std::string remove_quotes(std::string str){
-//     str.erase(str.begin());
-//     str.erase(str.end() - 1);
+void create_registro(std::vector< std::string > &tupla){
+    Registro novo_registro(tupla);
+    novo_registro.print();
 
-//     return str;
-// }
-
-void check_badformat_erros(std::vector< std::string > &tupla){
-    std::string id = tupla.at(0);
-
-    if(id == "4" || id == "12" || id == "20"){
-        tupla.at(3) += tupla.at(4);
-        tupla.erase(tupla.begin() + 4);
-    }
-    if(id == "20"){
-        tupla.at(3) += tupla.at(4);
-        tupla.erase(tupla.begin() + 4);
-    }
-}
-
-void create_registro(std::vector< std::string > tupla){
-    // for(auto &atrib : tupla){
-    //     atrib = remove_quotes(atrib);
-    // }
-
-    // check_badformat_erros(tupla);
-
-    // Registro novo_registro(tupla);
-    // novo_registro.print();
-    // std::cout << novo_registro.id << std::endl;
     // place_on_hash(novo_registro);
 }
 
@@ -67,8 +41,8 @@ void preprocess_linha(std::string &linha){
     int len1 = null_indicator1.length();
     int len2 = null_indicator2.length();
 
-    std::string replace1 = "\"null\"";
-    std::string replace2 = "\";\"null\";\"";
+    std::string replace1 = "\"NULL\"";
+    std::string replace2 = "\";\"NULL\";\"";
 
     int rep_len1 = replace1.length();
     int rep_len2 = replace2.length();
@@ -118,6 +92,7 @@ void process_content(std::fstream &cursor){
                 len_delimiter = delimiter2.length();
             }   
 
+            // se ainda há algum delimiter na linha pra fazer divisão
             if(len_delimiter){
                 if(token.length()){
                     token += linha.substr(0, pos);
@@ -165,11 +140,13 @@ void process_content(std::fstream &cursor){
 
         // std::cout << tupla.at(0) << std::endl;
 
-        if(tupla.size() != 7){
-            std::cout << tupla.at(0) << std::endl;
-        }
+        // if(tupla.size() != 7){
+        //     std::cout << tupla.at(0) << std::endl;
+        // }
 
         // teste(tupla);
+
+        create_registro(tupla);
         
         token = "";
         tupla.clear();
