@@ -6,9 +6,8 @@
 #define PARSER
 
 void create_registro(std::vector< std::string > &tupla);
-void teste(std::vector<std::string> &tupla);
 void preprocess_linha(std::string &linha);
 void process_content(std::fstream &cursor);
-void read_file();
+void parse_file();
 
 #endif

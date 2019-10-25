@@ -8,8 +8,8 @@
 class Registro
 {
 public:
-    bool vazio;
-    int id;
+    bool vazio;   
+    int id;       
     char titulo[300];
     int ano;
     char autores[150];

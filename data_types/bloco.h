@@ -12,6 +12,7 @@ public:
     char lixo[1072]; // usado para completar os 4k do bloco (4096 - 3024 = 1072)
 
     void print(){
+
         if(!registros[0].vazio){
             std::cout << "1o registro do bloco" << std::endl << std::endl;
             registros[0].print();
@@ -34,15 +35,25 @@ public:
     bool push_registro(Registro registro){
         if(registros[0].vazio){
             registros[0] = registro;
+            // std::cout << "botou no 1" << std::endl;
         }
         else if(registros[1].vazio){
             registros[1] = registro;
+            // std::cout << "botou no 2" << std::endl;
         }
         else {
             return false;
         }
 
         return true;
+    }
+
+    bool full(){
+        return (!registros[0].vazio && !registros[1].vazio);
+    }
+
+    bool not_null(){
+        return !(registros[0].vazio && registros[1].vazio);
     }
 };
 

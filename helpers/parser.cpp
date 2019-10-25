@@ -12,26 +12,9 @@
 
 void create_registro(std::vector< std::string > &tupla){
     Registro novo_registro(tupla);
-    novo_registro.print();
+    // novo_registro.print();
 
-    // place_on_hash(novo_registro);
-}
-
-void teste(std::vector<std::string> &tupla){
-    std::ofstream cursor;
-    cursor.open("files/teste.txt", std::ios::out | std::ios::app);
-
-    int i = 0;
-
-    for(i = 0; i < 6; i++){
-        std::cout << tupla.at(i) << std::endl;
-        cursor << tupla.at(i) << std::endl;
-    }
-
-    std::cout << tupla.at(6) << std::endl;
-    cursor << tupla.at(6) << std::endl;
-
-    cursor.close();
+    place_on_hash(novo_registro);
 }
 
 void preprocess_linha(std::string &linha){
@@ -138,14 +121,6 @@ void process_content(std::fstream &cursor){
             token_ptr->erase(token_ptr->end() - 1);
         }
 
-        // std::cout << tupla.at(0) << std::endl;
-
-        // if(tupla.size() != 7){
-        //     std::cout << tupla.at(0) << std::endl;
-        // }
-
-        // teste(tupla);
-
         create_registro(tupla);
         
         token = "";
@@ -153,11 +128,12 @@ void process_content(std::fstream &cursor){
     }
 }
 
-void read_file(){
+void parse_file(){
     std::fstream cursor;
-    cursor.open("files/entrada.csv", std::ios::in);
+    cursor.open("files/arquivo.entrada.tp2.bd1.artigos.csv", std::ios::in);
 
     if(cursor.is_open()){
+        std::cout << "[PARSER] Processando arquivo de entrada... Isso pode demorar um pouco." << std::endl;
         process_content(cursor);
     }
     else{
