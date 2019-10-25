@@ -11,7 +11,7 @@
 #include<fstream>
 #include<climits>
 using namespace std;
-#define TYPE int
+#define TYPE string
 int MAX; //size of each node
 class BPTree; //self explanatory classes
 
@@ -29,12 +29,12 @@ public:
 class BPTree
 {
 	Node<TYPE> *root;
-	void insertInternal(int,Node<TYPE>*,Node<TYPE>*);
+	void insertInternal(TYPE,Node<TYPE>*,Node<TYPE>*);
 	Node<TYPE>* findParent(Node<TYPE>*,Node<TYPE>*);
 public:
 	BPTree();
-	void search(int);
-	void insert(int);
+	void search(TYPE);
+	void insert(TYPE);
 	void display(Node<TYPE>*);
 	Node<TYPE>* getRoot();
 	void cleanUp(Node<TYPE>*);
@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 {
 	BPTree bpt;//B+ tree object that carries out all the operations
 	string command;
-	int x;
+	TYPE x;
 	bool close = false;
 	string logBuffer;//used to save into log
 	ifstream fin;
@@ -151,14 +151,15 @@ template<>
 Node<TYPE>::Node()
 {
 	//dynamic memory allocation
-	key = new int[MAX];
+	key = new TYPE[MAX];
 	ptr = new Node*[MAX+1];
 }
 BPTree::BPTree()
 {
 	root = NULL;
 }
-void BPTree::search(int x)
+
+void BPTree::search(TYPE x)
 {
 	//search logic
 	if(root==NULL)
@@ -198,7 +199,7 @@ void BPTree::search(int x)
 		cout<<"Not found\n";
 	}
 }
-void BPTree::insert(int x)
+void BPTree::insert(TYPE x)
 {
 	//insert logic
 	if(root==NULL)
@@ -257,7 +258,7 @@ void BPTree::insert(int x)
 			//create new leaf node
 			Node<TYPE>* newLeaf = new Node<TYPE>;
 			//create a virtual node and insert x into it
-			int virtualNode[MAX+1];
+			TYPE virtualNode[MAX+1];
 			for(int i = 0; i < MAX; i++)
 			{
 				virtualNode[i] = cursor->key[i];
@@ -309,7 +310,7 @@ void BPTree::insert(int x)
 		}
 	}
 }
-void BPTree::insertInternal(int x, Node<TYPE>* cursor, Node<TYPE>* child)
+void BPTree::insertInternal(TYPE x, Node<TYPE>* cursor, Node<TYPE>* child)
 {
 	if(cursor->size < MAX)
 	{
@@ -339,7 +340,7 @@ void BPTree::insertInternal(int x, Node<TYPE>* cursor, Node<TYPE>* child)
 		//create new internal node
 		Node<TYPE>* newInternal = new Node<TYPE>;
 		//create virtual Internal Node;
-		int virtualKey[MAX+1];
+		TYPE virtualKey[MAX+1];
 		Node<TYPE>* virtualPtr[MAX+2];
 		for(int i = 0; i < MAX; i++)
 		{
