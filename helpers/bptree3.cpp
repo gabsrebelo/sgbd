@@ -11,16 +11,12 @@
 #include<fstream>
 #include<climits>
 using namespace std;
-#define TYPE string
 int MAX; //size of each node
 class BPTree; //self explanatory classes
-
-template <class T>
 class Node
 {
 	bool IS_LEAF;
-    int size;
-	T *key;
+	int *key, size;
 	Node** ptr;
 	friend class BPTree;
 public:
@@ -28,16 +24,16 @@ public:
 };
 class BPTree
 {
-	Node<TYPE> *root;
-	void insertInternal(TYPE,Node<TYPE>*,Node<TYPE>*);
-	Node<TYPE>* findParent(Node<TYPE>*,Node<TYPE>*);
+	Node *root;
+	void insertInternal(int,Node*,Node*);
+	Node* findParent(Node*,Node*);
 public:
 	BPTree();
-	void search(TYPE);
-	void insert(TYPE);
-	void display(Node<TYPE>*);
-	Node<TYPE>* getRoot();
-	void cleanUp(Node<TYPE>*);
+	void search(int);
+	void insert(int);
+	void display(Node*);
+	Node* getRoot();
+	void cleanUp(Node*);
 	~BPTree();
 };
 //give command line argument to load a tree from log
@@ -46,7 +42,7 @@ int main(int argc, char* argv[])
 {
 	BPTree bpt;//B+ tree object that carries out all the operations
 	string command;
-	TYPE x;
+	int x;
 	bool close = false;
 	string logBuffer;//used to save into log
 	ifstream fin;
@@ -147,19 +143,17 @@ int main(int argc, char* argv[])
 	}while(!close);
 	return 0;
 }
-template<>
-Node<TYPE>::Node()
+Node::Node()
 {
 	//dynamic memory allocation
-	key = new TYPE[MAX];
+	key = new int[MAX];
 	ptr = new Node*[MAX+1];
 }
 BPTree::BPTree()
 {
 	root = NULL;
 }
-
-void BPTree::search(TYPE x)
+void BPTree::search(int x)
 {
 	//search logic
 	if(root==NULL)
@@ -169,7 +163,7 @@ void BPTree::search(TYPE x)
 	}
 	else
 	{
-		Node<TYPE>* cursor = root;
+		Node* cursor = root;
 		//in the following while loop, cursor will will travel to the leaf node possibly consisting the key
 		while(cursor->IS_LEAF == false)
 		{
@@ -199,12 +193,12 @@ void BPTree::search(TYPE x)
 		cout<<"Not found\n";
 	}
 }
-void BPTree::insert(TYPE x)
+void BPTree::insert(int x)
 {
 	//insert logic
 	if(root==NULL)
 	{
-		root = new Node<TYPE>;
+		root = new Node;
 		root->key[0] = x;
 		root->IS_LEAF = true;
 		root->size = 1;
@@ -212,15 +206,15 @@ void BPTree::insert(TYPE x)
 	}
 	else
 	{
-		Node<TYPE>* cursor = root;
-		Node<TYPE>* parent;
+		Node* cursor = root;
+		Node* parent;
 		//in the following while loop, cursor will will travel to the leaf node possibly consisting the key
 		while(cursor->IS_LEAF == false)
 		{
 			parent = cursor;
 			for(int i = 0; i < cursor->size; i++)
 			{
-				if(x < cursor->key[i]) //TODO comparacao por string 
+				if(x < cursor->key[i])
 				{
 					cursor = cursor->ptr[i];
 					break;
@@ -238,7 +232,7 @@ void BPTree::insert(TYPE x)
 			//if cursor is not full
 			//find the correct position for new key
 			int i = 0;
-			while(x > cursor->key[i] && i < cursor->size) i++; //TODO comparacao por string 
+			while(x > cursor->key[i] && i < cursor->size) i++;
 			//make space for new key
 			for(int j = cursor->size;j > i; j--)
 			{
@@ -256,15 +250,15 @@ void BPTree::insert(TYPE x)
 			cout<<"Overflow in leaf node!\nSplitting leaf node\n";
 			//overflow condition
 			//create new leaf node
-			Node<TYPE>* newLeaf = new Node<TYPE>;
+			Node* newLeaf = new Node;
 			//create a virtual node and insert x into it
-			TYPE virtualNode[MAX+1];
+			int virtualNode[MAX+1];
 			for(int i = 0; i < MAX; i++)
 			{
 				virtualNode[i] = cursor->key[i];
 			}
 			int i = 0, j;
-			while(x > virtualNode[i] && i < MAX) i++; //TODO comparacao por string 
+			while(x > virtualNode[i] && i < MAX) i++;
 			//make space for new key
 			for(int j = MAX+1;j > i; j--)
 			{
@@ -293,7 +287,7 @@ void BPTree::insert(TYPE x)
 			if(cursor == root)
 			{
 				//if cursor is a root node, we create a new root
-				Node<TYPE>* newRoot = new Node<TYPE>;
+				Node* newRoot = new Node;
 				newRoot->key[0] = newLeaf->key[0];
 				newRoot->ptr[0] = cursor;
 				newRoot->ptr[1] = newLeaf;
@@ -310,14 +304,14 @@ void BPTree::insert(TYPE x)
 		}
 	}
 }
-void BPTree::insertInternal(TYPE x, Node<TYPE>* cursor, Node<TYPE>* child)
+void BPTree::insertInternal(int x, Node* cursor, Node* child)
 {
 	if(cursor->size < MAX)
 	{
 		//if cursor is not full
 		//find the correct position for new key
 		int i = 0;
-		while(x > cursor->key[i] && i < cursor->size) i++; //TODO comparacao por string 
+		while(x > cursor->key[i] && i < cursor->size) i++;
 		//make space for new key
 		for(int j = cursor->size;j > i; j--)
 		{
@@ -338,10 +332,10 @@ void BPTree::insertInternal(TYPE x, Node<TYPE>* cursor, Node<TYPE>* child)
 		cout<<"Overflow in internal node!\nSplitting internal node\n";
 		//if overflow in internal node
 		//create new internal node
-		Node<TYPE>* newInternal = new Node<TYPE>;
+		Node* newInternal = new Node;
 		//create virtual Internal Node;
-		TYPE virtualKey[MAX+1];
-		Node<TYPE>* virtualPtr[MAX+2];
+		int virtualKey[MAX+1];
+		Node* virtualPtr[MAX+2];
 		for(int i = 0; i < MAX; i++)
 		{
 			virtualKey[i] = cursor->key[i];
@@ -351,7 +345,7 @@ void BPTree::insertInternal(TYPE x, Node<TYPE>* cursor, Node<TYPE>* child)
 			virtualPtr[i] = cursor->ptr[i];
 		}
 		int i = 0, j;
-		while(x > virtualKey[i] && i < MAX) i++; //TODO comparacao por string 
+		while(x > virtualKey[i] && i < MAX) i++;
 		//make space for new key
 		for(int j = MAX+1;j > i; j--)
 		{
@@ -381,7 +375,7 @@ void BPTree::insertInternal(TYPE x, Node<TYPE>* cursor, Node<TYPE>* child)
 		if(cursor == root)
 		{
 			//if cursor is a root node, we create a new root
-			Node<TYPE>* newRoot = new Node<TYPE>;
+			Node* newRoot = new Node;
 			newRoot->key[0] = cursor->key[cursor->size];
 			newRoot->ptr[0] = cursor;
 			newRoot->ptr[1] = newInternal;
@@ -398,11 +392,11 @@ void BPTree::insertInternal(TYPE x, Node<TYPE>* cursor, Node<TYPE>* child)
 		}
 	}
 }
-Node<TYPE>* BPTree::findParent(Node<TYPE>* cursor, Node<TYPE>* child)
+Node* BPTree::findParent(Node* cursor, Node* child)
 {
 	//finds parent using depth first traversal and ignores leaf nodes as they cannot be parents
 	//also ignores second last level because we will never find parent of a leaf node during insertion using this function
-	Node<TYPE>* parent;
+	Node* parent;
 	if(cursor->IS_LEAF || (cursor->ptr[0])->IS_LEAF)
 	{
 		return NULL;
@@ -422,7 +416,7 @@ Node<TYPE>* BPTree::findParent(Node<TYPE>* cursor, Node<TYPE>* child)
 	return parent;
 }
 
-void BPTree::display(Node<TYPE>* cursor)
+void BPTree::display(Node* cursor)
 {
 	//depth first display
 	if(cursor!=NULL)
@@ -441,11 +435,11 @@ void BPTree::display(Node<TYPE>* cursor)
 		}
 	}
 }
-Node<TYPE>* BPTree::getRoot()
+Node* BPTree::getRoot()
 {
 	return root;
 }
-void BPTree::cleanUp(Node<TYPE>* cursor)
+void BPTree::cleanUp(Node* cursor)
 {
 	//clean up logic
 	if(cursor!=NULL)
