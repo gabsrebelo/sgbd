@@ -1,5 +1,3 @@
-//Author: Shashikant Kadam
-//Roll number 16CSE1026
 /*****B+ Tree*****/
 //TODO funcao que le do arquivo de dados
     //subir 819 ids de registros para a mem
@@ -10,9 +8,12 @@
 #include<sstream>
 #include<fstream>
 #include<climits>
+#include "../data_types/bloco.h"
+#include "../data_types/registro.h"
 using namespace std;
-int MAX; //size of each node
-class BPTree; //self explanatory classes
+#define FILENAME "files/hash.bin"
+int MAX = 4; //tamanho de cada no
+class BPTree;
 class Node
 {
 	bool IS_LEAF;
@@ -34,118 +35,32 @@ public:
 	void display(Node*);
 	Node* getRoot();
 	void cleanUp(Node*);
+    void readFile();
 	~BPTree();
 };
 //give command line argument to load a tree from log
 //to create a fresh tree, do not give any command line argument
 int main(int argc, char* argv[])
 {
-	BPTree bpt;//B+ tree object that carries out all the operations
-	string command;
+	
+    BPTree bpt;
+    /*
 	int x;
-	bool close = false;
-	string logBuffer;//used to save into log
-	ifstream fin;
-	ofstream fout;
-	//create tree from log file from command line input
-	if(argc > 1)
-	{
-		fin.open(argv[1]);//open file
-		if(!fin.is_open())
-		{
-			cout<<"File not found\n";
-			return 0;
-		}
-		int i = 1;
-		getline(fin, logBuffer, '\0');//copy log from file to logBuffer for saving purpose
-		fin.close();
-		fin.open(argv[1]);//reopening file
-		getline(fin,command);
-		stringstream max(command);//first line of log contains the max degree
-		max>>MAX;
-		while(getline(fin,command))//iterating over every line ie command
-		{
-			if(!command.substr(0,6).compare("insert"))
-			{
-				stringstream argument(command.substr(7));
-				argument>>x;
-				bpt.insert(x);
-			}
-			else
-			{
-				cout<<"Unknown command: "<<command<<" at line #"<<i<<"\n";
-				return 0;
-			}
-			i++;
-		}
-		cout<<"Tree loaded successfully from: \""<<argv[1]<<"\"\n";
-		fin.close();
-	}
-	else//create fresh tree
-	{
-		cout<<"Enter the max degree\n";
-		cin>>command;
-		stringstream max(command);
-		max>>MAX;
-		logBuffer.append(command);
-		logBuffer.append("\n");
-		cin.clear();
-		cin.ignore(1);
-	}
-	//command line menu
-	cout<<"Commands:\nsearch <value> to search\n";
-	cout<<"insert <value> to insert\n";
-	cout<<"display to display\n";
-	cout<<"save to save log\n";
-	cout<<"exit to exit\n";
-	do
-	{
-		cout<<"Enter command: ";
-		getline(cin,command);
-		if(!command.substr(0,6).compare("search"))
-		{
-			stringstream argument(command.substr(7));
-			argument>>x;
-			bpt.search(x);
-		}
-		else if(!command.substr(0,6).compare("insert"))
-		{
-			stringstream argument(command.substr(7));
-			argument>>x;
-			bpt.insert(x);
-			logBuffer.append(command);
-			logBuffer.append("\n");
-		}
-		else if(!command.compare("display"))
-		{
-			bpt.display(bpt.getRoot());
-		}
-		else if(!command.compare("save"))
-		{
-			cout<<"Enter file name: ";
-			string filename;
-			cin>>filename;
-			fout.open(filename);
-			fout<<logBuffer;
-			fout.close();
-			cout<<"Saved successfully into file: \""<<filename<<"\"\n";
-			cin.clear();
-			cin.ignore(1);
-		}
-		else if(!command.compare("exit"))
-		{
-			close = true;
-		}
-		else
-		{
-			cout<<"Invalid command\n";
-		}
-	}while(!close);
+
+    while(true){
+        cin>>x;
+        if(x == -1)
+            bpt.display(bpt.getRoot());
+        else
+            bpt.insert(x);
+    }
+    */		
+	bpt.readFile();
 	return 0;
 }
 Node::Node()
 {
-	//dynamic memory allocation
+	//alocacao dinamica de memoria
 	key = new int[MAX];
 	ptr = new Node*[MAX+1];
 }
@@ -195,7 +110,6 @@ void BPTree::search(int x)
 }
 void BPTree::insert(int x)
 {
-	//insert logic
 	if(root==NULL)
 	{
 		root = new Node;
@@ -208,7 +122,7 @@ void BPTree::insert(int x)
 	{
 		Node* cursor = root;
 		Node* parent;
-		//in the following while loop, cursor will will travel to the leaf node possibly consisting the key
+        //ir ate o no folha
 		while(cursor->IS_LEAF == false)
 		{
 			parent = cursor;
@@ -226,11 +140,10 @@ void BPTree::insert(int x)
 				}
 			}
 		}
-		//now cursor is the leaf node in which we'll insert the new key
+        //aqui o cursor esta no nó folha onde deve ser inserido a chave
 		if(cursor->size < MAX)
 		{
-			//if cursor is not full
-			//find the correct position for new key
+            //se o no não estiver cheio, encontra a posicao correta
 			int i = 0;
 			while(x > cursor->key[i] && i < cursor->size) i++;
 			//make space for new key
@@ -248,10 +161,9 @@ void BPTree::insert(int x)
 		{
 			cout<<"Inserted "<<x<<" successfully\n";
 			cout<<"Overflow in leaf node!\nSplitting leaf node\n";
-			//overflow condition
-			//create new leaf node
+			//overflow e cria nova folha
 			Node* newLeaf = new Node;
-			//create a virtual node and insert x into it
+            //cria um nó virtual e insere x nele
 			int virtualNode[MAX+1];
 			for(int i = 0; i < MAX; i++)
 			{
@@ -259,22 +171,21 @@ void BPTree::insert(int x)
 			}
 			int i = 0, j;
 			while(x > virtualNode[i] && i < MAX) i++;
-			//make space for new key
+			//espaço para a nova chave
 			for(int j = MAX+1;j > i; j--)
 			{
 				virtualNode[j] = virtualNode[j-1];
 			}
 			virtualNode[i] = x; 
 			newLeaf->IS_LEAF = true;
-			//split the cursor into two leaf nodes
+			//separa em duas folhas
 			cursor->size = (MAX+1)/2;
 			newLeaf->size = MAX+1-(MAX+1)/2;
-			//make cursor point to new leaf node
+			//cursor aponta para a nova folha
 			cursor->ptr[cursor->size] = newLeaf;
-			//make new leaf node point to the next leaf node
 			newLeaf->ptr[newLeaf->size] = cursor->ptr[MAX];
 			cursor->ptr[MAX] = NULL;
-			//now give elements to new leaf nodes
+            //coloca elementos nas novas folhas
 			for(i = 0; i < cursor->size; i++)
 			{
 				cursor->key[i] = virtualNode[i];
@@ -283,10 +194,10 @@ void BPTree::insert(int x)
 			{
 				newLeaf->key[i] = virtualNode[j];
 			}
-			//modify the parent
+			//modifica o pai
 			if(cursor == root)
 			{
-				//if cursor is a root node, we create a new root
+				//se cursor ja for uma raiz, entao cria uma nova raiz
 				Node* newRoot = new Node;
 				newRoot->key[0] = newLeaf->key[0];
 				newRoot->ptr[0] = cursor;
@@ -298,7 +209,7 @@ void BPTree::insert(int x)
 			}
 			else
 			{
-				//insert new key in parent node
+				//insere no nó pai
 				insertInternal(newLeaf->key[0],parent,newLeaf);
 			}
 		}
@@ -308,15 +219,15 @@ void BPTree::insertInternal(int x, Node* cursor, Node* child)
 {
 	if(cursor->size < MAX)
 	{
-		//if cursor is not full
-		//find the correct position for new key
+        //se nao estiver cheio, encontrar a posicao correta da chave
 		int i = 0;
 		while(x > cursor->key[i] && i < cursor->size) i++;
-		//make space for new key
+        //espaço para a nova chave
 		for(int j = cursor->size;j > i; j--)
 		{
 			cursor->key[j] = cursor->key[j-1];
-		}//make space for new pointer
+		}
+        //espaço para o novo ponteiro
 		for(int j = cursor->size+1; j > i+1; j--)
 		{
 			cursor->ptr[j] = cursor->ptr[j-1];
@@ -330,10 +241,9 @@ void BPTree::insertInternal(int x, Node* cursor, Node* child)
 	{
 		cout<<"Inserted key in an Internal node successfully\n";
 		cout<<"Overflow in internal node!\nSplitting internal node\n";
-		//if overflow in internal node
-		//create new internal node
+        //se overflow, entao cria um novo nó interno
 		Node* newInternal = new Node;
-		//create virtual Internal Node;
+        //cria nó interno virtual
 		int virtualKey[MAX+1];
 		Node* virtualPtr[MAX+2];
 		for(int i = 0; i < MAX; i++)
@@ -346,23 +256,19 @@ void BPTree::insertInternal(int x, Node* cursor, Node* child)
 		}
 		int i = 0, j;
 		while(x > virtualKey[i] && i < MAX) i++;
-		//make space for new key
 		for(int j = MAX+1;j > i; j--)
 		{
 			virtualKey[j] = virtualKey[j-1];
 		}
 		virtualKey[i] = x; 
-		//make space for new ptr
 		for(int j = MAX+2;j > i+1; j--)
 		{
 			virtualPtr[j] = virtualPtr[j-1];
 		}
 		virtualPtr[i+1] = child; 
 		newInternal->IS_LEAF = false;
-		//split cursor into two nodes
 		cursor->size = (MAX+1)/2;
 		newInternal->size = MAX-(MAX+1)/2;
-		//give elements and pointers to the new node
 		for(i = 0, j = cursor->size+1; i < newInternal->size; i++, j++)
 		{
 			newInternal->key[i] = virtualKey[j];
@@ -374,7 +280,6 @@ void BPTree::insertInternal(int x, Node* cursor, Node* child)
 		// m = cursor->key[cursor->size]
 		if(cursor == root)
 		{
-			//if cursor is a root node, we create a new root
 			Node* newRoot = new Node;
 			newRoot->key[0] = cursor->key[cursor->size];
 			newRoot->ptr[0] = cursor;
@@ -386,16 +291,12 @@ void BPTree::insertInternal(int x, Node* cursor, Node* child)
 		}
 		else
 		{
-			//recursion
-			//find depth first search to find parent of cursor
 			insertInternal(cursor->key[cursor->size] ,findParent(root,cursor) ,cursor);
 		}
 	}
 }
 Node* BPTree::findParent(Node* cursor, Node* child)
 {
-	//finds parent using depth first traversal and ignores leaf nodes as they cannot be parents
-	//also ignores second last level because we will never find parent of a leaf node during insertion using this function
 	Node* parent;
 	if(cursor->IS_LEAF || (cursor->ptr[0])->IS_LEAF)
 	{
@@ -441,7 +342,6 @@ Node* BPTree::getRoot()
 }
 void BPTree::cleanUp(Node* cursor)
 {
-	//clean up logic
 	if(cursor!=NULL)
 	{
 		if(cursor->IS_LEAF != true)
@@ -464,4 +364,22 @@ BPTree::~BPTree()
 {
 	//calling cleanUp routine
 	cleanUp(root);
+}
+
+void BPTree::readFile(){
+    ifstream file_obj;
+    file_obj.open(FILENAME, ios::in);
+    Bloco bloco;
+    Registro reg[2];
+    BPTree bpt;
+
+    while (!file_obj.eof()) { 
+        //le um bloco do arquivo de dados e insere os registros na arvore
+        file_obj.read((char*)&bloco, sizeof(bloco));
+        for(int i=0; i<2; i++){
+            reg[i]= bloco.registros[i];
+            bpt.insert(reg[i].id);
+        }        
+    }
+    //bpt.display(bpt.getRoot());
 }
