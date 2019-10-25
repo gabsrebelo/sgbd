@@ -1,9 +1,4 @@
 /*****B+ Tree*****/
-//TODO funcao que le do arquivo de dados
-    //subir 819 ids de registros para a mem
-    //inserir eles na arvore
-    //se for folha aponta para o byte correspondente no arquivo de dados
-#include<iostream>
 #include<string>
 #include<sstream>
 #include<fstream>
@@ -38,8 +33,6 @@ public:
     void readFile();
 	~BPTree();
 };
-//give command line argument to load a tree from log
-//to create a fresh tree, do not give any command line argument
 int main(int argc, char* argv[])
 {
 	
@@ -70,16 +63,14 @@ BPTree::BPTree()
 }
 void BPTree::search(int x)
 {
-	//search logic
+
 	if(root==NULL)
 	{
-		//empty
 		cout<<"Tree empty\n";
 	}
 	else
 	{
 		Node* cursor = root;
-		//in the following while loop, cursor will will travel to the leaf node possibly consisting the key
 		while(cursor->IS_LEAF == false)
 		{
 			for(int i = 0; i < cursor->size; i++)
@@ -96,7 +87,6 @@ void BPTree::search(int x)
 				}
 			}
 		}
-		//in the following for loop, we search for the key if it exists
 		for(int i = 0; i < cursor->size; i++)
 		{
 			if(cursor->key[i] == x)
