@@ -10,80 +10,133 @@
 
 #define N_ATRIBUTOS 7
 
-std::string remove_quotes(std::string str){
-    str.erase(str.begin());
-    str.erase(str.end() - 1);
-
-    return str;
-}
-
-void check_badformat_erros(std::vector< std::string > &tupla){
-    std::string id = tupla.at(0);
-
-    if(id == "4" || id == "12" || id == "20"){
-        tupla.at(3) += tupla.at(4);
-        tupla.erase(tupla.begin() + 4);
-    }
-    if(id == "20"){
-        tupla.at(3) += tupla.at(4);
-        tupla.erase(tupla.begin() + 4);
-    }
-}
-
-void create_registro(std::vector< std::string > tupla){
-    for(auto &atrib : tupla){
-        atrib = remove_quotes(atrib);
-    }
-
-    check_badformat_erros(tupla);
-
+void create_registro(std::vector< std::string > &tupla){
     Registro novo_registro(tupla);
     // novo_registro.print();
-    std::cout << novo_registro.id << std::endl;
+
     place_on_hash(novo_registro);
 }
 
-void read_file(){
-    std::fstream cursor;
+void preprocess_linha(std::string &linha){
+    std::string null_indicator1 = "NULL"; 
+    std::string null_indicator2 = "\";;\"";
+    
+    int len1 = null_indicator1.length();
+    int len2 = null_indicator2.length();
 
-    // TODO: descomentar prox linha e comentar a outra
+    std::string replace1 = "\"NULL\"";
+    std::string replace2 = "\";\"NULL\";\"";
 
-    cursor.open("files/entrada.csv", std::ios::in); 
-    // cursor.open("files/entrada10.csv", std::ios::in); 
+    int rep_len1 = replace1.length();
+    int rep_len2 = replace2.length();
+
+    size_t pos = 0;
+
+    while((pos = linha.find(null_indicator1, pos)) != std::string::npos){
+        linha.replace(pos, len1, replace1);
+        pos += rep_len1;
+    }
+
+    pos = 0;
+
+    while((pos = linha.find(null_indicator2, pos)) != std::string::npos){
+        linha.replace(pos, len2, replace2);
+        pos += rep_len2;
+    }
+}
+
+void process_content(std::fstream &cursor){
 
     std::vector< std::string > tupla;
-    std::string linha, atributo, temp;
-    int i = 0;
+    std::string linha, token;
+    std::string delimiter = "\";\"";
+    std::string delimiter2 = "\";";
+    int len_delimiter;
+    size_t pos;
 
-    if (cursor.is_open()){
-        while(getline(cursor, linha)){
+    pos = 0;
+    token = "";
 
-            // Inicializa variáveis auxiliares
-            i = 0;
-            tupla.clear();
+    while(getline(cursor, linha)){
 
-            // Cria stream pra linha
-            std::stringstream s(linha);
+        preprocess_linha(linha);
 
-            // Dá um split na linha pela caractere \"
-            while(getline(s, atributo, '\"')){
+        // tokeniza do 1o ao penúltimo atributo, se guiando pelo delimitador ";"
+        while(linha.length()){
+            len_delimiter = 0;
 
-                // Só dá push nos elemntos pares do split, porque nos outros não tem nada (é o que tem entre um atrib e outro)
-                if(i % 2 == 1)
-                    tupla.push_back(atributo);
-                i++;
+            // se há, na linha, um \";\", então esse é o delimitador
+            if((pos = linha.find(delimiter)) != std::string::npos){
+                len_delimiter = delimiter.length();
             }
 
-            // for(auto &atrib : tupla){
-            //     std::cout << atrib << std::endl;
-            // }
+            // se há na verdade um \"; na linha, então esse é o delimitador
+            else if((pos = linha.find(delimiter2)) != std::string::npos){
+                len_delimiter = delimiter2.length();
+            }   
 
-            // std::cout << "-------" << tupla.size() << std::endl;
+            // se ainda há algum delimiter na linha pra fazer divisão
+            if(len_delimiter){
+                if(token.length()){
+                    token += linha.substr(0, pos);
+                }
+                else{
+                    token = linha.substr(0, pos);
+                }
 
-            create_registro(tupla);
+                tupla.push_back(token);
+
+                linha.erase(0, pos + len_delimiter);
+                token = "";
+            }
+
+            // esse caso é quando já se está no último atributo e, portanto, não tem mais
+            // nenhum dos dois delimitadores na linha.
+            else{
+                break;
+            }
         }
+
+        // tokeniza o último atributo
+        token = linha.substr(0, linha.length() - 1);
+
+        // quando algum atributo quebra na metáde (contém '\n') e é necessário continuar processando a 
+        // mesma tupla só que com a outra linha, vai pro próximo passo do loop sem limpar a tupla
+        // e nem o token.
+        if(tupla.size() < 6){
+            continue;
+        }
+
+        tupla.push_back(token);
+
+        std::string * token_ptr;
+
+        // tira as aspas da primeira entrada da tupla
+        token_ptr = &tupla.at(0);
+        token_ptr->erase(token_ptr->begin()); 
+
+        // tira as aspas da última entrada da tupla (se n for nula)
+        token_ptr = &tupla.at(tupla.size() - 1);
+        if((*token_ptr).length()){
+            token_ptr->erase(token_ptr->end() - 1);
+        }
+
+        create_registro(tupla);
+        
+        token = "";
+        tupla.clear();
     }
-    else {
-        std::cout << "nao abriu" << std::endl;
+}
+
+void parse_file(){
+    std::fstream cursor;
+    cursor.open("files/arquivo.entrada.tp2.bd1.artigos.csv", std::ios::in);
+
+    if(cursor.is_open()){
+        std::cout << "[PARSER] Processando arquivo de entrada... Isso pode demorar um pouco." << std::endl;
+        process_content(cursor);
+    }
+    else{
+        std::cout << "Erro ao abrir arquivo." << std::endl;
     }
 }

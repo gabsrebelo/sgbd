@@ -8,60 +8,78 @@
 class Registro
 {
 public:
-    bool vazio;
-    int id;
+    bool vazio;   
+    int id;       
     char titulo[300];
     int ano;
     char autores[150];
     int citacoes;
-    char atualizacao[19]; // "XX-XX-XXXX XX:XX:XX"
+    char atualizacao[20]; // "XX-XX-XXXX XX:XX:XX\0"
     char snippet[1024];
 
     Registro(){
         vazio = true;
     }
     
-    Registro(std::vector< std::string > tupla){
+    Registro(std::vector< std::string > &tupla){
+        // setVazio
+        vazio = false;
 
-        // for(auto &atrib : tupla){
-        //     std::cout << atrib << std::endl;
-        // }
+        // setId
+        if(!null_atribute(tupla.at(0)))
+            id = stoi(tupla.at(0));
+        else
+            id = 0;
 
-        // // setVazio
-        // vazio = false;
+        // setTitulo
+        if(!null_atribute(tupla.at(1)))
+            copy_string_to_char(tupla.at(1), titulo);
+        else
+            copy_string_to_char("", titulo);
 
-        // // setId
-        // std::cout << tupla.at(0) << std::endl;
-        // id = stoi(tupla.at(0));
+        // setAno
+        if(!null_atribute(tupla.at(2)))
+            ano = stoi(tupla.at(2));
+        else
+            ano = 0;
 
-        // // setTitulo
-        // std::cout << tupla.at(1) << std::endl;
-        // copy_string_to_char(tupla.at(1), titulo);
-
-        // // setAno
-        // std::cout << tupla.at(2) << std::endl;
-        // ano = stoi(tupla.at(2));
-
-        // // setAutores
-        // std::cout << tupla.at(3) << std::endl;
-        // copy_string_to_char(tupla.at(3), autores);
+        // setAutores
+        if(!null_atribute(tupla.at(3)))
+            copy_string_to_char(tupla.at(3), autores);
+        else 
+            copy_string_to_char("", autores);
         
-        // // setCitacoes
-        // std::cout << tupla.at(4) << std::endl;
-        // citacoes = stoi(tupla.at(4));
+        // setCitacoes
+        if(!null_atribute(tupla.at(4)))
+            citacoes = stoi(tupla.at(4));
+        else 
+            citacoes = 0;
         
-        // // setAtualizacao
-        // std::cout << tupla.at(5) << std::endl;
-        // copy_string_to_char(tupla.at(5), atualizacao);
         
-        // // setSnippet
-        // std::cout << tupla.at(6) << std::endl;
-        // copy_string_to_char(tupla.at(6), snippet);
+        // setAtualizacao
+        if(!null_atribute(tupla.at(5)))
+            copy_string_to_char(tupla.at(5), atualizacao);
+        else
+            copy_string_to_char("", atualizacao);
+        
+        if(tupla.at(6).length() > 1023){
+            tupla.at(6) = tupla.at(6).substr(0, 1022);
+        }
+
+        // setSnippet
+        if(!null_atribute(tupla.at(6)))
+            copy_string_to_char(tupla.at(6), snippet);
+        else
+            copy_string_to_char("", snippet);
     }
 
     void copy_string_to_char(std::string str, char * charArray){
         str.copy(charArray, str.size() + 1);
         charArray[str.size()] = '\0';
+    }
+
+    bool null_atribute(std::string &atributo){
+        return atributo == "NULL";
     }
 
     void print(){
