@@ -128,9 +128,9 @@ void process_content(std::fstream &cursor){
     }
 }
 
-void parse_file(){
+void parse_file(char* path_to_file){
     std::fstream cursor;
-    cursor.open("files/arquivo.entrada.tp2.bd1.artigos.csv", std::ios::in);
+    cursor.open(path_to_file, std::ios::in);
 
     if(cursor.is_open()){
         std::cout << "[PARSER] Processando arquivo de entrada... Isso pode demorar um pouco." << std::endl;
