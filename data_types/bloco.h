@@ -53,7 +53,7 @@ public:
     }
 
     bool not_null(){
-        return !(registros[0].vazio && registros[1].vazio);
+        return (!registros[0].vazio || !registros[1].vazio);
     }
 };
 

@@ -27,8 +27,12 @@ int main(int argc, char *argv[]){
     
     // findrec(atoi(argv[1]));
 
-    // parse_file();
-    read_hash_file();
+    parse_file();
+
+    // std::cout << get_bucket(30) << std::endl;
+    // std::cout << get_bucket_byte(30) << std::endl;
+
+    // read_hash_file();
 
     // init_mini_teste();
     // mini_teste();
