@@ -5,5 +5,6 @@
 int main(){
     init_hash_file();
     
+    
     return 0;
 }
